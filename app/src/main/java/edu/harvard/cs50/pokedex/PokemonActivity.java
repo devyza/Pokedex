@@ -2,8 +2,11 @@ package edu.harvard.cs50.pokedex;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -22,8 +25,10 @@ public class PokemonActivity extends AppCompatActivity {
     private TextView numberTextView;
     private TextView type1TextView;
     private TextView type2TextView;
+    private Button btnCatch;
     private String url;
     private RequestQueue requestQueue;
+    private boolean isCaught;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +41,7 @@ public class PokemonActivity extends AppCompatActivity {
         numberTextView = findViewById(R.id.pokemon_number);
         type1TextView = findViewById(R.id.pokemon_type1);
         type2TextView = findViewById(R.id.pokemon_type2);
+        btnCatch = findViewById(R.id.btnCatch);
 
         load();
     }
@@ -63,6 +69,10 @@ public class PokemonActivity extends AppCompatActivity {
                         else if (slot == 2) {
                             type2TextView.setText(type);
                         }
+
+                        isCaught = getPreferences(Context.MODE_PRIVATE).getBoolean(nameTextView.getText().toString(), false);
+                        btnCatch.setText(isCaught ? "Release" : "Catch");
+
                     }
                 } catch (JSONException e) {
                     Log.e("cs50", "Pokemon json error", e);
@@ -77,4 +87,18 @@ public class PokemonActivity extends AppCompatActivity {
 
         requestQueue.add(request);
     }
+
+    public void toggleCatch(View view) {
+        if (!isCaught) {
+            isCaught = true;
+            btnCatch.setText("Release");
+            getPreferences(Context.MODE_PRIVATE).edit().putBoolean(nameTextView.getText().toString(), true).commit();
+        }
+        else {
+            isCaught = false;
+            btnCatch.setText("Catch");
+            getPreferences(Context.MODE_PRIVATE).edit().putBoolean(nameTextView.getText().toString(), false).commit();
+        }
+    }
+
 }
