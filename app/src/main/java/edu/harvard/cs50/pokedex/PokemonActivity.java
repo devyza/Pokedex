@@ -3,10 +3,14 @@ package edu.harvard.cs50.pokedex;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -20,7 +24,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.net.URL;
+
 public class PokemonActivity extends AppCompatActivity {
+    private ImageView imgPokemon;
     private TextView nameTextView;
     private TextView numberTextView;
     private TextView type1TextView;
@@ -37,6 +45,7 @@ public class PokemonActivity extends AppCompatActivity {
 
         requestQueue = Volley.newRequestQueue(getApplicationContext());
         url = getIntent().getStringExtra("url");
+        imgPokemon = findViewById(R.id.imgPokemon);
         nameTextView = findViewById(R.id.pokemon_name);
         numberTextView = findViewById(R.id.pokemon_number);
         type1TextView = findViewById(R.id.pokemon_type1);
@@ -54,6 +63,10 @@ public class PokemonActivity extends AppCompatActivity {
             @Override
             public void onResponse(JSONObject response) {
                 try {
+
+                    String imgURL = response.getJSONObject("sprites").getString("front_default");
+                    new DownSpiteTask().execute(imgURL);
+
                     nameTextView.setText(response.getString("name"));
                     numberTextView.setText(String.format("#%03d", response.getInt("id")));
 
@@ -92,6 +105,25 @@ public class PokemonActivity extends AppCompatActivity {
         isCaught = !isCaught ? true : false;
         btnCatch.setText(isCaught ? "Release" : "Catch");
         getPreferences(Context.MODE_PRIVATE).edit().putBoolean(nameTextView.getText().toString(), isCaught).commit();
+    }
+
+    private class DownSpiteTask extends AsyncTask<String, Void, Bitmap>{
+
+        @Override
+        protected Bitmap doInBackground(String... strings) {
+            try {
+                URL url = new URL(strings[0]);
+                return BitmapFactory.decodeStream(url.openStream());
+            } catch (IOException e) {
+                Log.e("cs50", "Download Sprite Error", e);
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            imgPokemon.setImageBitmap(bitmap);
+        }
     }
 
 }
