@@ -89,16 +89,9 @@ public class PokemonActivity extends AppCompatActivity {
     }
 
     public void toggleCatch(View view) {
-        if (!isCaught) {
-            isCaught = true;
-            btnCatch.setText("Release");
-            getPreferences(Context.MODE_PRIVATE).edit().putBoolean(nameTextView.getText().toString(), true).commit();
-        }
-        else {
-            isCaught = false;
-            btnCatch.setText("Catch");
-            getPreferences(Context.MODE_PRIVATE).edit().putBoolean(nameTextView.getText().toString(), false).commit();
-        }
+        isCaught = !isCaught ? true : false;
+        btnCatch.setText(isCaught ? "Release" : "Catch");
+        getPreferences(Context.MODE_PRIVATE).edit().putBoolean(nameTextView.getText().toString(), isCaught).commit();
     }
 
 }
